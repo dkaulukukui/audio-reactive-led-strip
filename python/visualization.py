@@ -179,7 +179,7 @@ def visualize_spectrum(y):
 fft_plot_filter = dsp.ExpFilter(np.tile(1e-1, config.N_FFT_BINS),
                          alpha_decay=0.5, alpha_rise=0.99)
 mel_gain = dsp.ExpFilter(np.tile(1e-1, config.N_FFT_BINS),
-                         alpha_decay=0.01, alpha_rise=0.99)
+                         alpha_decay=0.01, alpha_rise=0.01) #default values alpha_decay=0.01, alpha_rise=0.99)                      
 mel_smoothing = dsp.ExpFilter(np.tile(1e-1, config.N_FFT_BINS),
                          alpha_decay=0.5, alpha_rise=0.99)
 volume = dsp.ExpFilter(config.MIN_VOLUME_THRESHOLD,
@@ -240,6 +240,9 @@ def microphone_update(audio_samples):
         if time.time() - 0.5 > prev_fps_update:
             prev_fps_update = time.time()
             print('FPS {:.0f} / {:.0f}'.format(fps, config.FPS))
+
+    if config.DISPLAY_GAIN:
+        print('Gain = {:.0f}'.format(np.mean(mel_gain.value)))
 
 
 # Number of audio samples to read every time frame
@@ -333,13 +336,20 @@ if __name__ == '__main__':
             energy_label.setText('Energy', color=inactive_color)
             scroll_label.setText('Scroll', color=inactive_color)
             spectrum_label.setText('Spectrum', color=active_color)
+        def gain_click(x):
+            if config.DISPLAY_GAIN:
+                config.DISPLAY_GAIN = False
+            else: 
+                config.DISPLAY_GAIN = True 
         # Create effect "buttons" (labels with click event)
         energy_label = pg.LabelItem('Energy')
         scroll_label = pg.LabelItem('Scroll')
         spectrum_label = pg.LabelItem('Spectrum')
+        gain_label = pg.LabelItem('Gain')
         energy_label.mousePressEvent = energy_click
         scroll_label.mousePressEvent = scroll_click
         spectrum_label.mousePressEvent = spectrum_click
+        gain_label.mousePressEvent = gain_click
         energy_click(0)
         # Layout
         layout.nextRow()
@@ -350,6 +360,8 @@ if __name__ == '__main__':
         layout.addItem(energy_label)
         layout.addItem(scroll_label)
         layout.addItem(spectrum_label)
+        layout.nextRow()
+        layout.addItem(gain_label)
     # Initialize LEDs
     led.update()
     # Start listening to live audio stream

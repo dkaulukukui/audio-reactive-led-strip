@@ -4,6 +4,8 @@ from __future__ import division
 import os
 
 DEVICE = 'esp8266'
+#DEVICE = 'pi'
+#DEVICE = 'blinkstick'
 """Device used to control LED strip. Must be 'pi',  'esp8266' or 'blinkstick'
 
 'esp8266' means that you are using an ESP8266 module to control the LED strip
@@ -45,8 +47,10 @@ if DEVICE == 'blinkstick':
 USE_GUI = True
 """Whether or not to display a PyQtGraph GUI plot of visualization"""
 
-DISPLAY_FPS = True
+DISPLAY_FPS = False
 """Whether to display the FPS when running (can reduce performance)"""
+
+DISPLAY_GAIN = False #added to toggle serial output of mean gain adjustment for debugging.
 
 N_PIXELS = 60
 """Number of pixels in the LED strip (must match ESP8266 firmware)"""

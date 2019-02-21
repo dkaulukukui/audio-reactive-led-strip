@@ -11,11 +11,20 @@ if config.DEVICE == 'esp8266':
     _sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Raspberry Pi controls the LED strip directly
 elif config.DEVICE == 'pi':
+    import time	  #add
+    import board  #add
     import neopixel
-    strip = neopixel.Adafruit_NeoPixel(config.N_PIXELS, config.LED_PIN,
-                                       config.LED_FREQ_HZ, config.LED_DMA,
-                                       config.LED_INVERT, config.BRIGHTNESS)
-    strip.begin()
+
+    #strip = neopixel.Adafruit_NeoPixel(config.N_PIXELS, config.LED_PIN,
+    #                                   config.LED_FREQ_HZ, config.LED_DMA,
+    #                                   config.LED_INVERT, config.BRIGHTNESS)
+    #strip.begin()
+
+    pixel_pin = board.D18
+    ORDER = neopixel.GRB
+
+    strip = neopixel.NeoPixel(pixel_pin, config.N_PIXELS, brightness=1, auto_write=False, pixel_order=ORDER)
+
 elif config.DEVICE == 'blinkstick':
     from blinkstick import blinkstick
     import signal
@@ -102,9 +111,18 @@ def _update_pi():
     # Update the pixels
     for i in range(config.N_PIXELS):
         # Ignore pixels if they haven't changed (saves bandwidth)
-        if np.array_equal(p[:, i], _prev_pixels[:, i]):
-            continue
-        strip._led_data[i] = rgb[i]
+        #if np.array_equal(p[:, i], _prev_pixels[:, i]):
+        #    continue
+
+        ##Hack to split rgb back into 0-255 values
+        r = (rgb[i] >> 8) & 0xff
+        g = (rgb[i] >> 16) & 0xff
+        b = rgb[i] & 0xff      	
+
+        #strip[i] = rgb[i]
+        strip[i] = (r,g,b)
+        #print("r= ", r, "g=", g, "b=", b)
+
     _prev_pixels = np.copy(p)
     strip.show()
 
